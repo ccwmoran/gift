@@ -1,586 +1,540 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>给你的新年礼物🎁</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            overflow: hidden;
-            background: linear-gradient(135deg, #1a0a33 0%, #0a1a33 100%);
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Microsoft YaHei', sans-serif;
-            height: 100vh;
-            color: white;
-            position: relative;
-            font-weight: 300;
-        }
-        
-        canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 1;
-        }
-        
-        .content {
-            position: relative;
-            z-index: 10;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            text-align: center;
-            padding: 0 20px;
-            pointer-events: none;
-        }
-        
-        #dynamic-blessings {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 9;
-        }
-        
-        .dynamic-blessing {
-            position: absolute;
-            font-size: 1.4rem;
-            font-weight: 300;
-            opacity: 0;
-            transform: translate(-50%, -50%) scale(0.7);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            white-space: nowrap;
-            text-shadow: 0 0 8px rgba(255, 255, 255, 0.7);
-            letter-spacing: 2px;
-            filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.5));
-        }
-        
-        .dynamic-blessing.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1.1);
-            animation: float 2.5s ease-in-out forwards;
-        }
-        
-        @keyframes float {
-            0% { transform: translate(-50%, -50%) scale(1.1); }
-            50% { transform: translate(-50%, -60%) scale(1); }
-            100% { transform: translate(-50%, -65%) scale(0.95); opacity: 0.9; }
-        }
-        
-        .greeting {
-            font-size: clamp(3rem, 10vw, 6.5rem);
-            font-weight: 400;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5),
-                         0 0 40px rgba(255, 215, 0, 0.7),
-                         0 0 60px rgba(255, 105, 180, 0.5);
-            background: linear-gradient(45deg, #ff8a00, #ff00aa, #6a11cb, #4a00ff);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            letter-spacing: 2px;
-            margin-bottom: 40px;
-            animation: glow 2s ease-in-out infinite alternate;
-            position: relative;
-        }
-        
-        .greeting::after {
-            content: '';
-            position: absolute;
-            bottom: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 120px;
-            height: 4px;
-            background: linear-gradient(90deg, transparent, #ff8a00, #ff00aa, #6a11cb, transparent);
-            border-radius: 2px;
-            animation: gradientFlow 3s infinite linear;
-        }
-        
-        @keyframes gradientFlow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 100% 50%; }
-        }
-        
-        @keyframes glow {
-            from {
-                text-shadow: 0 0 15px rgba(255, 255, 255, 0.3),
-                             0 0 25px rgba(255, 215, 0, 0.5),
-                             0 0 35px rgba(255, 105, 180, 0.4);
-            }
-            to {
-                text-shadow: 0 0 25px rgba(255, 255, 255, 0.6),
-                             0 0 45px rgba(255, 215, 0, 0.8),
-                             0 0 65px rgba(255, 105, 180, 0.7);
-            }
-        }
-        
-        .hint-container {
-            position: relative;
-            margin-top: 30px;
-            background: rgba(30, 15, 50, 0.6);
-            backdrop-filter: blur(5px);
-            border-radius: 20px;
-            padding: 12px 25px;
-            border: 1px solid rgba(150, 100, 255, 0.3);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-            pointer-events: auto;
-            animation: pulse 3s infinite;
-        }
-        
-        .hint {
-            font-size: clamp(0.9rem, 2.8vw, 1.35rem);
-            color: rgba(220, 240, 255, 0.95);
-            line-height: 1.6;
-            text-shadow: 0 0 5px rgba(150, 200, 255, 0.6);
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-        
-        @keyframes pulse {
-            0% { box-shadow: 0 0 10px rgba(150, 100, 255, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(150, 100, 255, 0.5); }
-            100% { box-shadow: 0 0 10px rgba(150, 100, 255, 0.2); }
-        }
-        
-        #surprise {
-            position: fixed;
-            bottom: 25px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: clamp(0.75rem, 2.2vw, 1.1rem);
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.92);
-            text-shadow: 0 0 6px rgba(255, 255, 255, 0.6),
-                         0 0 12px rgba(200, 200, 255, 0.4);
-            z-index: 20;
-            opacity: 0;
-            transition: opacity 0.6s ease-in-out;
-            letter-spacing: 1.5px;
-            pointer-events: none;
-            white-space: nowrap;
-        }
-        
-        #surprise.show {
-            opacity: 1;
-        }
-        
-        #click-area {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 200px;
-            z-index: 15;
-            cursor: pointer;
-        }
-        
-        .sparkle {
-            position: absolute;
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: white;
-            opacity: 0.6;
-            pointer-events: none;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>你的专属2025年度报告</title>
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng:wght@400&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0c1a33 0%, #0a1428 50%, #0d1b36 100%);
+      color: white;
+      font-family: 'Arial', sans-serif;
+      overflow-x: hidden;
+      position: relative;
+    }
+    
+    .background-decoration {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: -1;
+    }
+    
+    .decoration-circle {
+      position: absolute;
+      border-radius: 50%;
+      background: linear-gradient(45deg, rgba(56, 189, 248, 0.1), rgba(99, 102, 241, 0.1));
+      animation: float 15s infinite ease-in-out;
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-20px) scale(1.1); }
+    }
+    
+    .slide-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      padding: 2rem;
+      transition: opacity 0.5s ease;
+    }
+    
+    .slide {
+      text-align: center;
+      max-width: 1200px;
+      width: 100%;
+      padding: 2rem;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .cover-title {
+      font-size: 3.5rem;
+      font-weight: bold;
+      margin-bottom: 3rem;
+      color: #6366f1;
+      text-shadow: 0 2px 10px rgba(99, 102, 241, 0.3);
+    }
+    
+    @media (min-width: 768px) {
+      .cover-title {
+        font-size: 5rem;
+      }
+    }
+    
+    .btn {
+      background: white;
+      color: #1e293b;
+      border: none;
+      padding: 1rem 2rem;
+      font-size: 1.25rem;
+      font-weight: bold;
+      border-radius: 9999px;
+      cursor: pointer;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+    
+    .btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 15px 30px -5px rgba(0, 0, 0, 0.4);
+    }
+    
+    .btn:active {
+      transform: scale(0.95);
+    }
+    
+    .time-sentence {
+      font-size: 2.5rem;
+      font-weight: 500;
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+    
+    .time-sentence .time-value {
+      font-size: 4rem;
+      font-weight: bold;
+      color: #fbbf24;
+      display: inline-block;
+      vertical-align: middle;
+    }
+    
+    @media (min-width: 768px) {
+      .time-sentence {
+        font-size: 3rem;
+      }
+      .time-sentence .time-value {
+        font-size: 5rem;
+      }
+    }
+    
+    .quote {
+      font-family: 'Ma Shan Zheng', cursive;
+      font-size: 1.75rem;
+      line-height: 1.5;
+      max-width: 600px;
+      margin: 0 auto;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      letter-spacing: 0.05em;
+    }
+    
+    @media (min-width: 768px) {
+      .quote {
+        font-size: 2.25rem;
+      }
+    }
+    
+    .pagination {
+      position: absolute;
+      bottom: 2rem;
+      width: 100%;
+      max-width: 1200px;
+      padding: 0 2rem;
+      display: none;
+    }
+    
+    .progress-bar {
+      height: 0.375rem;
+      background-color: rgba(30, 58, 138, 0.3);
+      border-radius: 9999px;
+      overflow: hidden;
+      margin-bottom: 1.5rem;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(to right, #38bdf8, #8b5cf6);
+      border-radius: 9999px;
+      width: 0%;
+      transition: width 0.5s ease;
+    }
+    
+    .pagination-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      background: rgba(30, 58, 138, 0.3);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 9999px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-btn:hover {
+      background: rgba(30, 58, 138, 0.5);
+      transform: scale(1.05);
+    }
+    
+    .nav-btn:active {
+      transform: scale(0.95);
+    }
+    
+    .nav-btn:disabled {
+      opacity: 0;
+      cursor: default;
+      transform: none;
+    }
+    
+    .icon {
+      width: 1.25rem;
+      height: 1.25rem;
+      margin: 0 0.5rem;
+    }
+    
+    .celebration-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    
+    .confetti {
+      position: absolute;
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: confetti-fall 5s linear forwards;
+    }
+    
+    @keyframes confetti-fall {
+      0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+    }
+    
+    .celebration-text {
+      font-size: 2.5rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+    }
+    
+    @media (min-width: 768px) {
+      .celebration-text {
+        font-size: 3.5rem;
+      }
+    }
+    
+    .new-year-text {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fbbf24;
+      margin-top: 1rem;
+    }
+    
+    @media (min-width: 768px) {
+      .new-year-text {
+        font-size: 2.75rem;
+      }
+    }
+    
+    .final-title {
+      font-size: 2.5rem;
+      font-weight: bold;
+      color: #6366f1;
+      margin-bottom: 2rem;
+    }
+    
+    @media (min-width: 768px) {
+      .final-title {
+        font-size: 3.5rem;
+      }
+    }
+    
+    .tech-support {
+      font-size: 1rem;
+      color: rgba(148, 163, 184, 0.8);
+      margin-top: 4rem;
+    }
+    
+    @media (min-width: 768px) {
+      .tech-support {
+        font-size: 1.25rem;
+      }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.5s ease forwards;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fade-out {
+      animation: fadeOut 0.5s ease forwards;
+    }
+    
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-20px); }
+    }
+  </style>
 </head>
 <body>
-    <canvas id="fireworks-canvas"></canvas>
-    <div id="dynamic-blessings"></div>
-    <div class="content">
-        <h1 class="greeting">新年快乐</h1>
-        <div class="hint-container">
-            <p class="hint">点一下页面底部空白部分（如未显示请长按空白处）</p>
-        </div>
+  <div class="background-decoration" id="backgroundDecoration"></div>
+  
+  <div class="slide-container">
+    <!-- Slide 0: Cover -->
+    <div class="slide active" id="slide-0">
+      <h1 class="cover-title fade-in">你的专属2025年度报告</h1>
+      <button class="btn fade-in" id="startBtn">去看看&gt;</button>
     </div>
-    <div id="surprise">5oiR5Zac5qyi5L2g</div>
-    <div id="click-area"></div>
+    
+    <!-- Slides 1-7: Time calculations with new text -->
+    <div class="slide hidden" id="slide-1">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">12</span>个月的朋友
+      </div>
+      <p class="quote fade-in">星辰不会因为云层而停止闪耀，你也不会因为挫折而失去光芒。</p>
+    </div>
+    
+    <div class="slide hidden" id="slide-2">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">52.14</span>周的朋友
+      </div>
+      <p class="quote fade-in">溪流从不羡慕大海的辽阔，它只专注于穿越自己的山谷。</p>
+    </div>
+    
+    <div class="slide hidden" id="slide-3">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">365</span>天的朋友
+      </div>
+      <p class="quote fade-in">风筝逆风而上，人生亦是如此——压力是飞翔的伙伴。</p>
+    </div>
+    
+    <div class="slide hidden" id="slide-4">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">8,760</span>小时的朋友
+      </div>
+      <p class="quote fade-in">种子破土前总在黑暗中积蓄力量，你的努力正在看不见的地方生长。</p>
+    </div>
+    
+    <div class="slide hidden" id="slide-5">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">525,600</span>分钟的朋友
+      </div>
+      <p class="quote fade-in">萤火虫的光芒虽小，却能点亮整片夏夜，你的存在同样珍贵。</p>
+    </div>
+    
+    <div class="slide hidden" id="slide-6">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">31,536,000</span>秒的朋友
+      </div>
+      <p class="quote fade-in">竹子用四年时间只长3厘米，第五年却每天30厘米——所有成长都有沉淀期。</p>
+    </div>
+    
+    <div class="slide hidden" id="slide-7">
+      <div class="time-sentence fade-in">
+        2025年我们又做了<span class="time-value">31,536,000,000</span>毫秒的朋友
+      </div>
+      <p class="quote fade-in">露珠从不担心太阳升起，因为它知道自己的使命是滋润清晨。</p>
+    </div>
+    
+    <!-- Slide 8: New Year -->
+    <div class="slide hidden" id="slide-8">
+      <div class="celebration-bg" id="confettiContainer"></div>
+      <div class="celebration-text fade-in">2025完结撒花🎊，2026你好呀🎉</div>
+      <div class="new-year-text fade-in">祝你新年快乐！</div>
+    </div>
+    
+    <!-- Slide 9: Final -->
+    <div class="slide hidden" id="slide-9">
+      <h1 class="final-title fade-in">by Morgan</h1>
+      <p class="tech-support fade-in">CCWMORAN慕然科技提供技术支持</p>
+    </div>
+  </div>
+  
+  <div class="pagination" id="pagination">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+    <div class="pagination-controls">
+      <button class="nav-btn" id="prevBtn">
+        <i data-lucide="chevron-left" class="icon"></i>
+        <span>上一页</span>
+      </button>
+      <button class="nav-btn" id="nextBtn">
+        <span>下一页</span>
+        <i data-lucide="chevron-right" class="icon"></i>
+      </button>
+    </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const canvas = document.getElementById('fireworks-canvas');
-            const ctx = canvas.getContext('2d');
-            let width, height;
-            
-            function resizeCanvas() {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            }
-            
-            window.addEventListener('resize', resizeCanvas);
-            resizeCanvas();
-            
-            // 丰富的烟花颜色
-            const vibrantColors = [
-                { h: 0, s: 100, l: 65 },    // 亮红
-                { h: 30, s: 100, l: 70 },   // 亮橙
-                { h: 60, s: 100, l: 75 },   // 亮黄
-                { h: 120, s: 80, l: 65 },   // 亮绿
-                { h: 180, s: 90, l: 70 },   // 亮青
-                { h: 210, s: 95, l: 75 },   // 亮蓝
-                { h: 270, s: 90, l: 70 },   // 亮紫
-                { h: 300, s: 95, l: 75 },   // 亮粉
-                { h: 330, s: 100, l: 70 }   // 亮洋红
-            ];
-            
-            // 初三学生祝福语
-            const blessings = [
-                "学业进步", "金榜题名", "快乐成长", "梦想成真", "前程似锦",
-                "健康平安", "天天开心", "万事如意", "智慧如海", "勇攀高峰",
-                "青春飞扬", "自信阳光", "友谊长存", "收获满满", "未来可期",
-                "考试顺利", "心想事成", "活力满满", "闪闪发光", "天天向上"
-            ];
-            
-            // 创建动态祝福语
-            function addDynamicBlessing(x, y) {
-                const container = document.getElementById('dynamic-blessings');
-                const blessingEl = document.createElement('div');
-                blessingEl.className = 'dynamic-blessing';
-                
-                const blessingText = blessings[Math.floor(Math.random() * blessings.length)];
-                blessingEl.textContent = blessingText;
-                
-                // 随机颜色
-                const color = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
-                const hue = (color.h + (Math.random() - 0.5) * 20 + 360) % 360;
-                const sat = Math.max(85, Math.min(100, color.s));
-                const light = Math.max(80, Math.min(95, color.l));
-                blessingEl.style.color = `hsl(${hue}, ${sat}%, ${light}%)`;
-                
-                // 位置
-                blessingEl.style.left = `${x}px`;
-                blessingEl.style.top = `${y}px`;
-                
-                container.appendChild(blessingEl);
-                
-                // 触发重绘后添加show类
-                setTimeout(() => {
-                    blessingEl.classList.add('show');
-                }, 10);
-                
-                // 2.8秒后淡出
-                setTimeout(() => {
-                    blessingEl.style.opacity = '0';
-                    blessingEl.style.transform = 'translate(-50%, -50%) scale(0.9)';
-                    setTimeout(() => {
-                        if (blessingEl.parentNode) {
-                            blessingEl.parentNode.removeChild(blessingEl);
-                        }
-                    }, 400);
-                }, 2800);
-            }
-            
-            // 烟花类
-            class Firework {
-                constructor() {
-                    // 随机水平位置 (覆盖整个宽度)
-                    this.x = Math.random() * width;
-                    this.y = height + 50; // 从屏幕外开始
-                    
-                    // 获取"新年快乐"元素位置
-                    const greetingEl = document.querySelector('.greeting');
-                    if (greetingEl) {
-                        const rect = greetingEl.getBoundingClientRect();
-                        const greetingTop = rect.top + window.scrollY;
-                        // 爆炸位置在"新年快乐"文字上方（屏幕顶部15%-50%区域）
-                        this.targetY = greetingTop * (0.15 + Math.random() * 0.35);
-                    } else {
-                        // 默认位置（屏幕顶部25%-60%）
-                        this.targetY = height * (0.25 + Math.random() * 0.35);
-                    }
-                    
-                    this.speed = 12 + Math.random() * 8;
-                    this.colorIndex = Math.floor(Math.random() * vibrantColors.length);
-                    this.color = vibrantColors[this.colorIndex];
-                    this.trail = [];
-                    this.particles = [];
-                    this.exploded = false;
-                    this.particleCount = 120 + Math.floor(Math.random() * 180);
-                    this.trailLength = 20;
-                    this.trailIndex = 0;
-                }
-                
-                update() {
-                    if (!this.exploded) {
-                        // 上升阶段
-                        this.y -= this.speed;
-                        this.speed *= 0.93;
-                        
-                        // 添加轨迹点
-                        this.trail[this.trailIndex] = { x: this.x, y: this.y };
-                        this.trailIndex = (this.trailIndex + 1) % this.trailLength;
-                        
-                        // 检查是否到达爆炸点
-                        if (this.y <= this.targetY || this.speed < 0.5) {
-                            this.explode();
-                        }
-                    } else {
-                        // 更新粒子
-                        this.particles = this.particles.filter(p => p.update());
-                    }
-                }
-                
-                explode() {
-                    this.exploded = true;
-                    
-                    // 在爆炸位置显示祝福语
-                    addDynamicBlessing(this.x, this.y);
-                    
-                    // 生成粒子
-                    for (let i = 0; i < this.particleCount; i++) {
-                        const angle = Math.random() * Math.PI * 2;
-                        const speed = 1 + Math.random() * 12;
-                        const size = 0.8 + Math.random() * 4;
-                        const colorOffset = (Math.random() - 0.5) * 40;
-                        
-                        this.particles.push(new Particle(
-                            this.x,
-                            this.y,
-                            Math.cos(angle) * speed,
-                            Math.sin(angle) * speed,
-                            {
-                                h: (this.color.h + colorOffset + 360) % 360,
-                                s: Math.min(100, this.color.s + 10),
-                                l: Math.max(70, this.color.l - 15)
-                            },
-                            size
-                        ));
-                    }
-                    
-                    // 产生小火花
-                    for (let i = 0; i < 20; i++) {
-                        setTimeout(() => {
-                            const sparkle = document.createElement('div');
-                            sparkle.className = 'sparkle';
-                            sparkle.style.left = `${this.x + (Math.random() - 0.5) * 30}px`;
-                            sparkle.style.top = `${this.y + (Math.random() - 0.5) * 30}px`;
-                            document.body.appendChild(sparkle);
-                            
-                            // 随机颜色
-                            const color = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
-                            sparkle.style.background = `hsl(${color.h}, ${color.s}%, ${color.l}%)`;
-                            
-                            // 动画
-                            sparkle.animate([
-                                { transform: 'scale(0)', opacity: '1' },
-                                { transform: 'scale(1.5)', opacity: '0' }
-                            ], {
-                                duration: 800,
-                                easing: 'cubic-bezier(0.175, 0.885, 0.32, 1.275)'
-                            });
-                            
-                            setTimeout(() => {
-                                sparkle.remove();
-                            }, 800);
-                        }, i * 20);
-                    }
-                }
-                
-                draw() {
-                    if (!this.exploded) {
-                        // 绘制烟花弹
-                        ctx.beginPath();
-                        ctx.arc(this.x, this.y, 3, 0, Math.PI * 2);
-                        ctx.fillStyle = `hsl(${this.color.h}, ${this.color.s}%, ${this.color.l}%)`;
-                        ctx.shadowBlur = 15;
-                        ctx.shadowColor = `hsl(${this.color.h}, ${this.color.s}%, ${this.color.l}%)`;
-                        ctx.fill();
-                        ctx.shadowBlur = 0;
-                        
-                        // 绘制轨迹
-                        ctx.beginPath();
-                        for (let i = 0; i < this.trailLength; i++) {
-                            const index = (this.trailIndex + i) % this.trailLength;
-                            if (this.trail[index]) {
-                                const opacity = i / this.trailLength;
-                                ctx.globalAlpha = opacity * 0.8;
-                                ctx.beginPath();
-                                ctx.arc(this.trail[index].x, this.trail[index].y, 1.5 + i * 0.2, 0, Math.PI * 2);
-                                ctx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, ${opacity})`;
-                                ctx.shadowBlur = 5;
-                                ctx.shadowColor = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, ${opacity})`;
-                                ctx.fill();
-                                ctx.shadowBlur = 0;
-                            }
-                        }
-                        ctx.globalAlpha = 1;
-                    } else {
-                        // 绘制粒子
-                        this.particles.forEach(p => p.draw());
-                    }
-                }
-            }
-            
-            // 粒子类
-            class Particle {
-                constructor(x, y, vx, vy, color, size) {
-                    this.x = x;
-                    this.y = y;
-                    this.vx = vx;
-                    this.vy = vy;
-                    this.color = color;
-                    this.size = size;
-                    this.gravity = 0.12;
-                    this.friction = 0.97;
-                    this.alpha = 1;
-                    this.decay = 0.96 + Math.random() * 0.03;
-                }
-                
-                update() {
-                    // 应用物理效果
-                    this.vy += this.gravity;
-                    this.vx *= this.friction;
-                    this.vy *= this.friction;
-                    
-                    this.x += this.vx;
-                    this.y += this.vy;
-                    
-                    // 衰减
-                    this.alpha *= this.decay;
-                    this.size *= 0.99;
-                    
-                    return this.alpha > 0.01 && this.size > 0.1;
-                }
-                
-                draw() {
-                    ctx.globalAlpha = this.alpha;
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, ${this.alpha})`;
-                    ctx.fill();
-                    ctx.globalAlpha = 1;
-                }
-            }
-            
-            // 星空背景
-            class Star {
-                constructor() {
-                    this.x = Math.random() * width;
-                    this.y = Math.random() * height * 0.8;
-                    this.size = Math.random() * 2 + 0.8;
-                    this.brightness = 0.3 + Math.random() * 0.7;
-                    this.twinkleSpeed = 0.01 + Math.random() * 0.04;
-                    this.twinklePhase = Math.random() * Math.PI * 2;
-                    this.color = vibrantColors[Math.floor(Math.random() * vibrantColors.length)];
-                }
-                
-                update() {
-                    this.brightness = 0.3 + Math.abs(Math.sin(Date.now() * this.twinkleSpeed + this.twinklePhase)) * 0.6;
-                }
-                
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                    ctx.fillStyle = `hsla(${this.color.h}, ${this.color.s}%, ${this.color.l}%, ${this.brightness})`;
-                    ctx.fill();
-                }
-            }
-            
-            const stars = [];
-            const fireworks = [];
-            let lastFireworkTime = 0;
-            
-            // 初始化星星
-            for (let i = 0; i < 300; i++) {
-                stars.push(new Star());
-            }
-            
-            // 等待DOM加载完成，确保能获取到.greeting元素
-            setTimeout(() => {
-                // 动画循环
-                function animate() {
-                    ctx.fillStyle = 'rgba(10, 5, 25, 0.1)';
-                    ctx.fillRect(0, 0, width, height);
-                    
-                    // 更新和绘制星星
-                    stars.forEach(star => {
-                        star.update();
-                        star.draw();
-                    });
-                    
-                    // 定时发射烟花
-                    const now = Date.now();
-                    if (now - lastFireworkTime > 600 + Math.random() * 800) {
-                        fireworks.push(new Firework());
-                        lastFireworkTime = now;
-                    }
-                    
-                    // 更新和绘制烟花
-                    for (let i = fireworks.length - 1; i >= 0; i--) {
-                        fireworks[i].update();
-                        fireworks[i].draw();
-                        
-                        // 移除已经消失的烟花
-                        if (fireworks[i].exploded && fireworks[i].particles.length === 0) {
-                            fireworks.splice(i, 1);
-                        }
-                    }
-                    
-                    requestAnimationFrame(animate);
-                }
-                
-                animate();
-            }, 100);
-            
-            // 点击区域事件
-            const clickArea = document.getElementById('click-area');
-            const surprise = document.getElementById('surprise');
-            let isSurpriseVisible = false;
-            
-            clickArea.addEventListener('click', () => {
-                if (!isSurpriseVisible) {
-                    surprise.classList.add('show');
-                    isSurpriseVisible = true;
-                    
-                    // 6秒后自动隐藏
-                    setTimeout(() => {
-                        surprise.classList.remove('show');
-                        isSurpriseVisible = false;
-                    }, 6000);
-                }
-            });
-            
-            // 长按支持
-            let longPressTimer;
-            let isLongPress = false;
-            
-            clickArea.addEventListener('touchstart', (e) => {
-                e.preventDefault();
-                isLongPress = false;
-                longPressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    if (!isSurpriseVisible) {
-                        surprise.classList.add('show');
-                        isSurpriseVisible = true;
-                    }
-                }, 500);
-            });
-            
-            clickArea.addEventListener('touchend', () => {
-                clearTimeout(longPressTimer);
-                if (!isLongPress && !isSurpriseVisible) {
-                    surprise.classList.add('show');
-                    isSurpriseVisible = true;
-                    
-                    setTimeout(() => {
-                        surprise.classList.remove('show');
-                        isSurpriseVisible = false;
-                    }, 6000);
-                }
-            });
-        });
-    </script>
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Create background decorations
+    const backgroundDecoration = document.getElementById('backgroundDecoration');
+    for (let i = 0; i < 15; i++) {
+      const circle = document.createElement('div');
+      circle.classList.add('decoration-circle');
+      circle.style.width = `${Math.random() * 150 + 50}px`;
+      circle.style.height = circle.style.width;
+      circle.style.top = `${Math.random() * 100}%`;
+      circle.style.left = `${Math.random() * 100}%`;
+      circle.style.animationDelay = `${Math.random() * 10}s`;
+      circle.style.opacity = `${Math.random() * 0.2 + 0.1}`;
+      backgroundDecoration.appendChild(circle);
+    }
+    
+    // Slide management
+    let currentSlide = 0;
+    const totalSlides = 9;
+    const slides = document.querySelectorAll('.slide');
+    const pagination = document.getElementById('pagination');
+    const progressFill = document.getElementById('progressFill');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const startBtn = document.getElementById('startBtn');
+    
+    // Show initial pagination state
+    updatePagination();
+    
+    // Start button handler
+    startBtn.addEventListener('click', () => {
+      goToSlide(1);
+    });
+    
+    // Navigation buttons
+    prevBtn.addEventListener('click', () => {
+      if (currentSlide > 0) {
+        goToSlide(currentSlide - 1);
+      }
+    });
+    
+    nextBtn.addEventListener('click', () => {
+      if (currentSlide < totalSlides) {
+        goToSlide(currentSlide + 1);
+      }
+    });
+    
+    // Go to specific slide
+    function goToSlide(slideIndex) {
+      // Add fade out animation to current slide
+      slides[currentSlide].classList.add('fade-out');
+      
+      // Hide current slide after animation
+      setTimeout(() => {
+        slides[currentSlide].classList.remove('active', 'fade-in', 'fade-out');
+        slides[currentSlide].classList.add('hidden');
+        
+        // Show new slide
+        currentSlide = slideIndex;
+        slides[currentSlide].classList.remove('hidden', 'fade-out');
+        slides[currentSlide].classList.add('active');
+        
+        // Add fade in animation
+        setTimeout(() => {
+          slides[currentSlide].classList.add('fade-in');
+        }, 10);
+        
+        // Update pagination
+        updatePagination();
+        
+        // Special handling for celebration slide
+        if (currentSlide === 8) {
+          createConfetti('confettiContainer', 50);
+        }
+      }, 500);
+    }
+    
+    // Update pagination UI
+    function updatePagination() {
+      // Show/hide pagination
+      pagination.style.display = currentSlide === 0 ? 'none' : 'block';
+      
+      // Update progress bar
+      const progress = (currentSlide / totalSlides) * 100;
+      progressFill.style.width = `${progress}%`;
+      
+      // Update button states
+      prevBtn.disabled = currentSlide === 0;
+      nextBtn.disabled = currentSlide === totalSlides;
+      
+      // Update button text
+      if (currentSlide === 0) {
+        nextBtn.innerHTML = '<span>去看看</span><i data-lucide="chevron-right" class="icon"></i>';
+      } else if (currentSlide === totalSlides) {
+        nextBtn.innerHTML = '<span>完成</span><i data-lucide="chevron-right" class="icon"></i>';
+      } else {
+        nextBtn.innerHTML = '<span>下一页</span><i data-lucide="chevron-right" class="icon"></i>';
+      }
+      
+      prevBtn.innerHTML = `<i data-lucide="chevron-left" class="icon"></i><span>${currentSlide === 0 ? '' : '上一页'}</span>`;
+      
+      // Re-render Lucide icons
+      lucide.createIcons();
+    }
+    
+    // Create confetti effect with circular shapes
+    function createConfetti(containerId, count) {
+      const container = document.getElementById(containerId);
+      container.innerHTML = '';
+      
+      for (let i = 0; i < count; i++) {
+        const confetti = document.createElement('div');
+        confetti.classList.add('confetti');
+        
+        // Random position, size, color and delay
+        const leftPos = Math.random() * 100;
+        const size = Math.random() * 0.8 + 0.4;
+        const hue = Math.random() * 360;
+        const delay = Math.random() * 5;
+        
+        confetti.style.left = `${leftPos}%`;
+        confetti.style.width = `${size}rem`;
+        confetti.style.height = `${size}rem`;
+        confetti.style.backgroundColor = `hsl(${hue}, 70%, 60%)`;
+        confetti.style.animationDelay = `${delay}s`;
+        confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+        
+        container.appendChild(confetti);
+      }
+    }
+    
+    // Initialize with proper state
+    document.addEventListener('DOMContentLoaded', () => {
+      // Show pagination for slides after cover
+      if (currentSlide > 0) {
+        pagination.style.display = 'block';
+      }
+      
+      // Create initial confetti for celebration slide if needed
+      if (currentSlide === 8) {
+        createConfetti('confettiContainer', 50);
+      }
+    });
+  </script>
 </body>
 </html>
